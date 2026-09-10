@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crystal Group — Agent Availability</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+<div class="app-shell" id="app">
+
+  <!-- ===== Login ===== -->
+  <section class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <div class="brand">
+        <!-- The supplied wordmark already contains the company name, so the placeholder
+             mark and its "Crystal Group" label are gone rather than sitting beside it. -->
+        <img class="brand-logo brand-logo--lg" src="./img/ct-logo.svg" alt="Crystal Travel" />
+        <div class="brand-sub">Zoom Pro Admin</div>
+      </div>
+      <form class="login-fields" id="loginForm">
+        <label class="field">
+          <span class="field-label">Username</span>
+          <input class="text-input" type="text" id="loginUsername" placeholder="admin@crystalgroup.co" autocomplete="username" />
+        </label>
+        <label class="field">
+          <span class="field-label">Password</span>
+          <input class="text-input" type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" />
+        </label>
+        <div class="login-error" id="loginError" hidden></div>
+        <button class="btn-primary" type="submit">Sign In</button>
+      </form>
+      <div class="login-foot">CONTACT CENTRE OPERATIONS · v2.4</div>
+    </div>
+  </section>
+
+  <!-- ===== Live Monitor ===== -->
+  <section class="page" id="liveScreen" hidden>
+    <header class="header">
+      <div class="header-left">
+        <img class="brand-logo" src="./img/ct-logo.svg" alt="Crystal Travel" />
+        <div class="header-sep"></div>
+        <div class="header-crumb">Agent Availability</div>
+      </div>
+      <div class="header-right">
+        <div class="tabs">
+          <button class="tab-btn active" id="tabLiveBtn" data-tab="live">Live Monitor</button>
+          <button class="tab-btn" id="tabReportBtnFromLive" data-tab="report">Opt-In / Opt-Out</button>
+        </div>
+        <div class="live-pill"><div class="live-dot"></div><span class="live-label">Live</span></div>
+        <div class="clock" id="clock">--:--:-- BST</div>
+        <button class="btn-secondary" id="signOutBtnLive">Sign out</button>
+      </div>
+    </header>
+
+    <div class="warning-banner" id="liveWarning" hidden></div>
+
+    <!-- One panel with hairline-divided columns, per the design — not separate cards. -->
+    <div class="kpi-bar">
+      <div class="kpi-cell">
+        <div class="kpi-head"><span class="kpi-dot" style="background:var(--available-dot);"></span><span class="kpi-label">Available</span></div>
+        <div class="kpi-value" id="kAvailable">0</div>
+        <div class="kpi-sub">free to take a call</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-head"><span class="kpi-dot" style="background:var(--oncall-dot);"></span><span class="kpi-label">On calls</span></div>
+        <div class="kpi-value" id="kOnCall">0</div>
+        <div class="kpi-sub">on a call right now</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-head"><span class="kpi-dot" style="background:var(--waiting-dot);"></span><span class="kpi-label">Calls waiting</span></div>
+        <div class="kpi-value" id="kWaiting">0</div>
+        <div class="kpi-sub" id="kWaitingSub">—</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-head"><span class="kpi-dot" style="background:#6f6f6b;"></span><span class="kpi-label">Opted in</span></div>
+        <div class="kpi-value" id="kIn">0</div>
+        <div class="kpi-sub" id="kInSub">of 0 members</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-head"><span class="kpi-dot" style="background:var(--optout-dot);"></span><span class="kpi-label">Opted out</span></div>
+        <div class="kpi-value" id="kOut">0</div>
+        <div class="kpi-sub">not in any queue</div>
+      </div>
+      <div class="kpi-cell kpi-cell--idle" id="kIdleCard" hidden>
+        <div class="kpi-head"><span class="kpi-dot" style="background:var(--idle-dot);"></span><span class="kpi-label">Online, no queue</span></div>
+        <div class="kpi-value" id="kIdle">0</div>
+        <div class="kpi-sub" id="kIdleSub">opted out of every queue</div>
+      </div>
+      <div class="kpi-cell kpi-cell--alert" id="kOverBreakCard" hidden>
+        <div class="kpi-head"><span class="kpi-dot" style="background:var(--alert-dot);"></span><span class="kpi-label">Over break</span></div>
+        <div class="kpi-value" id="kOverBreak">0</div>
+        <div class="kpi-sub" id="kOverBreakSub">past their allowance</div>
+      </div>
+      <div class="kpi-cell kpi-cell--alert" id="kAlertCard" hidden>
+        <div class="kpi-head"><span class="kpi-dot" style="background:var(--alert-dot);"></span><span class="kpi-label">Abandoned</span></div>
+        <div class="kpi-value" id="kAlerts">0</div>
+        <div class="kpi-sub">opted in but away</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">Opted In / Active</span>
+        <span class="section-count" id="inCount">0 agents</span>
+        <div class="section-rule"></div>
+      </div>
+      <div class="agent-grid" id="optedInGrid"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title section-title--muted">Opted Out</span>
+        <span class="section-count section-count--muted" id="outCount">0 agents</span>
+        <div class="section-rule"></div>
+      </div>
+      <div class="optout-grid" id="optedOutGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===== Opt-In / Opt-Out Report ===== -->
+  <section class="page" id="reportScreen" hidden>
+    <header class="header">
+      <div class="header-left">
+        <img class="brand-logo" src="./img/ct-logo.svg" alt="Crystal Travel" />
+        <div class="header-sep"></div>
+        <div class="header-crumb">Opt-In / Opt-Out Report</div>
+      </div>
+      <div class="header-right">
+        <div class="tabs">
+          <button class="tab-btn" id="tabLiveBtnFromReport" data-tab="live">Live Monitor</button>
+          <button class="tab-btn active" id="tabReportBtn" data-tab="report">Opt-In / Opt-Out</button>
+        </div>
+        <button class="btn-secondary" id="signOutBtnReport">Sign out</button>
+      </div>
+    </header>
+
+    <div class="filter-bar">
+      <label class="filter-field">
+        <span class="filter-label">Date</span>
+        <input class="date-input" type="date" id="reportDate" />
+      </label>
+      <label class="filter-field filter-field--agent">
+        <span class="filter-label">Agent</span>
+        <select class="select-input" id="reportAgent"></select>
+      </label>
+      <button class="btn-export" id="exportBtn">Export to Excel</button>
+      <div class="filter-spacer"></div>
+      <div class="filter-stats">
+        <div>
+          <div class="filter-label">Avg per agent</div>
+          <div class="filter-stat-value mono" id="avgLabel">—</div>
+        </div>
+        <div>
+          <div class="filter-label">Longest opted out</div>
+          <div class="filter-stat-value filter-stat-value--danger mono" id="longestLabel">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="headline">
+      <div class="headline-block">
+        <div class="headline-label">Total time opted out</div>
+        <div class="headline-big" id="headTotal">0h 00m</div>
+      </div>
+      <div class="headline-block">
+        <div class="headline-label">Total login time</div>
+        <div class="headline-mid headline-mid--login" id="loginTotal">0h 00m</div>
+        <div class="headline-fine" id="loginWindow">—</div>
+      </div>
+      <div class="headline-block">
+        <div class="headline-label">Opted in</div>
+        <div class="headline-mid headline-mid--in" id="optedInTotal">0h 00m</div>
+      </div>
+      <div class="headline-block">
+        <div class="headline-name" id="headName">All agents</div>
+        <div class="headline-sub" id="headSub">—</div>
+        <div class="headline-sub" id="headDate">—</div>
+      </div>
+    </div>
+
+    <div class="panel" id="reasonPanel">
+      <div class="panel-title">Total hours by reason</div>
+      <div class="reason-grid" id="reasonGrid"></div>
+    </div>
+
+    <div class="panel" id="singlePanel" hidden>
+      <div class="timeline-scale">
+        <span>08:00</span><span>11:00</span><span>13:00</span><span>15:00</span><span>18:00</span>
+      </div>
+      <div class="timeline-track" id="timelineTrack"></div>
+      <div class="session-grid" id="sessionGrid"></div>
+    </div>
+
+    <div class="panel" id="allPanel" hidden>
+      <div class="panel-title">Login time vs opt-out time by agent
+        <span class="panel-title-note">(bar = opted out · blue = login · × = periods)</span>
+      </div>
+      <div class="rows-grid" id="rowsGrid"></div>
+    </div>
+  </section>
+
+</div>
+
+<script src="./js/time.js"></script>
+<script src="./js/api.js"></script>
+<script src="./js/liveMonitor.js"></script>
+<script src="./js/report.js"></script>
+<script src="./js/app.js"></script>
+</body>
+</html>

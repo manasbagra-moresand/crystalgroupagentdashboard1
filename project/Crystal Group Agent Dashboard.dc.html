@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#ececeb; font-family:'IBM Plex Sans', Helvetica, Arial, sans-serif; }
+  * { box-sizing:border-box; }
+  a { color:#2f6fd0; }
+  a:hover { color:#1d4f9c; }
+  input:focus { outline:none; }
+  @keyframes pulseRing { 0% { box-shadow:0 0 0 0 rgba(196,52,42,0.35); } 70% { box-shadow:0 0 0 10px rgba(196,52,42,0); } 100% { box-shadow:0 0 0 0 rgba(196,52,42,0); } }
+</style>
+</helmet>
+<div style="width:100%; min-height:100vh; background:#f4f4f3; color:#1b1b1a; display:flex; flex-direction:column;">
+
+  <sc-if value="{{ showLogin }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1; display:flex; align-items:center; justify-content:center; background:#ececeb; padding:24px;">
+      <div style="width:100%; max-width:380px; background:#ffffff; border:1px solid #dedddb; border-radius:10px; padding:36px 32px 30px; box-shadow:0 12px 40px rgba(20,20,18,0.08);">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:28px;">
+          <div style="width:26px; height:26px; border-radius:5px; background:#1b1b1a; display:flex; align-items:center; justify-content:center;">
+            <div style="width:9px; height:9px; background:#f4f4f3; transform:rotate(45deg);"></div>
+          </div>
+          <div>
+            <div style="font-size:16px; font-weight:600; letter-spacing:-0.01em; line-height:1.1;">Crystal Group</div>
+            <div style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.09em; text-transform:uppercase; color:#8a8a86; margin-top:3px;">Zoom Pro Admin</div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <label style="display:flex; flex-direction:column; gap:6px;">
+            <span style="font-size:11.5px; font-weight:500; letter-spacing:0.04em; text-transform:uppercase; color:#6f6f6b;">Username</span>
+            <input type="text" value="{{ username }}" onChange="{{ onUser }}" placeholder="admin@crystalgroup.co" style="height:40px; border:1px solid #d7d6d3; border-radius:6px; padding:0 12px; font-size:14px; font-family:'IBM Plex Sans', sans-serif; background:#fbfbfa; color:#1b1b1a;" />
+          </label>
+          <label style="display:flex; flex-direction:column; gap:6px;">
+            <span style="font-size:11.5px; font-weight:500; letter-spacing:0.04em; text-transform:uppercase; color:#6f6f6b;">Password</span>
+            <input type="password" value="{{ password }}" onChange="{{ onPass }}" placeholder="••••••••" style="height:40px; border:1px solid #d7d6d3; border-radius:6px; padding:0 12px; font-size:14px; font-family:'IBM Plex Sans', sans-serif; background:#fbfbfa; color:#1b1b1a;" />
+          </label>
+          <button onClick="{{ signIn }}" style="margin-top:8px; height:42px; border:none; border-radius:6px; background:#1b1b1a; color:#f4f4f3; font-size:14px; font-weight:600; font-family:'IBM Plex Sans', sans-serif; cursor:pointer; letter-spacing:0.01em;" style-hover="background:#333330">Sign In</button>
+        </div>
+        <div style="margin-top:22px; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:10px; color:#a3a29e; letter-spacing:0.06em;">CONTACT CENTRE OPERATIONS · v2.4</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showReport }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1; display:flex; flex-direction:column; padding:18px 22px 16px; gap:14px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:24px; height:24px; border-radius:5px; background:#1b1b1a; display:flex; align-items:center; justify-content:center;">
+            <div style="width:8px; height:8px; background:#f4f4f3; transform:rotate(45deg);"></div>
+          </div>
+          <div style="font-size:15px; font-weight:600; letter-spacing:-0.01em;">Crystal Group</div>
+          <div style="width:1px; height:16px; background:#d5d4d1;"></div>
+          <div style="font-size:13px; color:#6f6f6b;">Opt-In / Opt-Out Report</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div style="display:flex; gap:6px;">
+            <button onClick="{{ goLive }}" style="{{ tabLiveStyle }}">Live Monitor</button>
+            <button onClick="{{ goReport }}" style="{{ tabReportStyle }}">Opt-In / Opt-Out</button>
+          </div>
+          <button onClick="{{ signOut }}" style="height:28px; padding:0 12px; border:1px solid #dcdbd8; background:#ffffff; border-radius:6px; font-size:12px; font-family:'IBM Plex Sans', sans-serif; color:#4a4a47; cursor:pointer;" style-hover="background:#f0efed">Sign out</button>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; background:#ffffff; border:1px solid #e2e1de; border-radius:8px; padding:12px 14px;">
+        <label style="display:flex; flex-direction:column; gap:5px;">
+          <span style="font-size:10.5px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:#6f6f6b;">Date</span>
+          <input type="date" value="{{ date }}" onChange="{{ onDate }}" style="height:34px; border:1px solid #d7d6d3; border-radius:6px; padding:0 10px; font-size:13px; font-family:'IBM Plex Sans', sans-serif; background:#fbfbfa; color:#1b1b1a;" />
+        </label>
+        <label style="display:flex; flex-direction:column; gap:5px; min-width:220px;">
+          <span style="font-size:10.5px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:#6f6f6b;">Agent</span>
+          <select value="{{ pick }}" onChange="{{ onPick }}" style="height:34px; border:1px solid #d7d6d3; border-radius:6px; padding:0 10px; font-size:13px; font-family:'IBM Plex Sans', sans-serif; background:#fbfbfa; color:#1b1b1a;">
+            <sc-for list="{{ agentOptions }}" as="o" hint-placeholder-count="3">
+              <option value="{{ o }}">{{ o }}</option>
+            </sc-for>
+          </select>
+        </label>
+        <button onClick="{{ exportCsv }}" style="height:34px; padding:0 14px; border:1px solid #1b1b1a; background:#1b1b1a; color:#f4f4f3; border-radius:6px; font-size:12.5px; font-weight:600; font-family:'IBM Plex Sans', sans-serif; cursor:pointer;" style-hover="background:#333330">Export to Excel</button>
+        <div style="flex:1;"></div>
+        <div style="display:flex; gap:26px; align-items:flex-end;">
+          <div>
+            <div style="font-size:10.5px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:#6f6f6b;">Avg per agent</div>
+            <div style="font-family:'IBM Plex Mono', monospace; font-size:16px; color:#3d3d3a; margin-top:3px;">{{ avgLabel }}</div>
+          </div>
+          <div>
+            <div style="font-size:10.5px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:#6f6f6b;">Longest opted out</div>
+            <div style="font-family:'IBM Plex Mono', monospace; font-size:16px; color:#a52a21; margin-top:3px;">{{ longest }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#ffffff; border:1px solid #e2e1de; border-radius:8px; padding:16px 18px; display:flex; align-items:baseline; gap:18px; flex-wrap:wrap;">
+        <div>
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6f6f6b;">Total time opted out</div>
+          <div style="font-size:44px; font-weight:600; letter-spacing:-0.03em; line-height:1.05; margin-top:2px; color:#9c6a10;">{{ headTotal }}</div>
+        </div>
+        <div style="padding-left:18px; border-left:1px solid #e6e5e2;">
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6f6f6b;">Total login time</div>
+          <div style="font-size:30px; font-weight:600; letter-spacing:-0.03em; line-height:1.1; margin-top:2px; color:#2358a8;">{{ loginTotal }}</div>
+          <div style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:#8a8a86; margin-top:2px;">{{ loginWindow }}</div>
+        </div>
+        <div style="padding-left:18px; border-left:1px solid #e6e5e2;">
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6f6f6b;">Opted in</div>
+          <div style="font-size:30px; font-weight:600; letter-spacing:-0.03em; line-height:1.1; margin-top:2px; color:#256e47;">{{ optedInTotal }}</div>
+        </div>
+        <div style="padding-left:18px; border-left:1px solid #e6e5e2;">
+          <div style="font-size:14px; font-weight:600;">{{ headLabel }}</div>
+          <div style="font-size:12px; color:#8a8a86; margin-top:2px;">{{ headSub }}</div>
+          <div style="font-size:12px; color:#8a8a86;">{{ date }}</div>
+        </div>
+      </div>
+
+      <sc-if value="{{ isSingle }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#ffffff; border:1px solid #e2e1de; border-radius:8px; padding:14px 16px; display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.08em; color:#a3a29e;">
+            <span>08:00</span><span>11:00</span><span>13:00</span><span>15:00</span><span>18:00</span>
+          </div>
+          <div style="position:relative; height:16px; background:#f1f0ee; border-radius:4px;">
+            <sc-for list="{{ sessions }}" as="s" hint-placeholder-count="3">
+              <div style="{{ s.barStyle }}"></div>
+            </sc-for>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:8px; margin-top:4px;">
+            <sc-for list="{{ sessions }}" as="s" hint-placeholder-count="3">
+              <div style="border:1px solid #eae9e6; border-radius:6px; padding:9px 11px; display:flex; align-items:center; gap:10px;">
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; color:#b6b5b0;">{{ s.idx }}</span>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:#3d3d3a;">{{ s.range }}</div>
+                  <div style="font-size:11px; color:#8a8a86; margin-top:1px;">{{ s.reason }}</div>
+                </div>
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:600; color:#9c6a10;">{{ s.dur }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isAll }}" hint-placeholder-val="{{ true }}">
+        <div style="background:#ffffff; border:1px solid #e2e1de; border-radius:8px; padding:14px 16px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#3d3d3a; margin-bottom:10px;">Login time vs opt-out time by agent <span style="font-weight:500; letter-spacing:0.04em; color:#a3a29e;">(bar = opted out · blue = login · × = periods)</span></div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:6px 22px;">
+            <sc-for list="{{ rows }}" as="r" hint-placeholder-count="12">
+              <div style="display:flex; align-items:center; gap:10px; padding:4px 0;">
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; color:#c2c1bc; width:16px;">{{ r.rank }}</span>
+                <div style="width:130px; min-width:0;">
+                  <div style="font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.name }}</div>
+                  <div style="font-size:10px; color:#a3a29e; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.reasons }}</div>
+                </div>
+                <div style="flex:1; min-width:40px; background:#f1f0ee; border-radius:4px;">
+                  <div style="{{ r.barStyle }}"></div>
+                </div>
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:#2358a8; width:52px; text-align:right;">{{ r.login }}</span>
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:12px; font-weight:600; color:#3d3d3a; width:56px; text-align:right;">{{ r.total }}</span>
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:#a3a29e; width:24px; text-align:right;">{{ r.count }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showDash }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1; display:flex; flex-direction:column; padding:18px 22px 16px; gap:14px;">
+
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:24px; height:24px; border-radius:5px; background:#1b1b1a; display:flex; align-items:center; justify-content:center;">
+            <div style="width:8px; height:8px; background:#f4f4f3; transform:rotate(45deg);"></div>
+          </div>
+          <div style="font-size:15px; font-weight:600; letter-spacing:-0.01em;">Crystal Group</div>
+          <div style="width:1px; height:16px; background:#d5d4d1;"></div>
+          <div style="font-size:13px; color:#6f6f6b;">Agent Availability</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div style="display:flex; gap:6px;">
+            <button onClick="{{ goLive }}" style="{{ tabLiveStyle }}">Live Monitor</button>
+            <button onClick="{{ goReport }}" style="{{ tabReportStyle }}">Opt-In / Opt-Out</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:7px; padding:5px 10px; border:1px solid #dcdbd8; border-radius:100px; background:#ffffff;">
+            <div style="width:6px; height:6px; border-radius:50%; background:#2f8f5b;"></div>
+            <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:#4a4a47;">Live</span>
+          </div>
+          <div style="font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:#4a4a47; letter-spacing:0.02em;">{{ clock }}</div>
+          <button onClick="{{ signOut }}" style="height:28px; padding:0 12px; border:1px solid #dcdbd8; background:#ffffff; border-radius:6px; font-size:12px; font-family:'IBM Plex Sans', sans-serif; color:#4a4a47; cursor:pointer;" style-hover="background:#f0efed">Sign out</button>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px;">
+        <div style="background:#ffffff; border:1px solid #e2e1de; border-top:3px solid #2f8f5b; border-radius:8px; padding:14px 16px;">
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6f6f6b;">Available</div>
+          <div style="font-size:34px; font-weight:600; letter-spacing:-0.03em; line-height:1.05; margin-top:4px; color:#256e47;">{{ kAvailable }}</div>
+          <div style="font-size:11.5px; color:#8a8a86; margin-top:2px;">free to take a call</div>
+        </div>
+        <div style="background:#ffffff; border:1px solid #e2e1de; border-top:3px solid #c98a1e; border-radius:8px; padding:14px 16px;">
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6f6f6b;">Calls Waiting</div>
+          <div style="font-size:34px; font-weight:600; letter-spacing:-0.03em; line-height:1.05; margin-top:4px; color:#9c6a10;">{{ kWaiting }}</div>
+          <div style="font-size:11.5px; color:#8a8a86; margin-top:2px;">longest wait {{ longestWait }}</div>
+        </div>
+        <div style="background:#ffffff; border:1px solid #e2e1de; border-top:3px solid #2f6fd0; border-radius:8px; padding:14px 16px;">
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6f6f6b;">Opted-In Users</div>
+          <div style="font-size:34px; font-weight:600; letter-spacing:-0.03em; line-height:1.05; margin-top:4px; color:#2358a8;">{{ kIn }}</div>
+          <div style="font-size:11.5px; color:#8a8a86; margin-top:2px;">of {{ kTotal }} team members</div>
+        </div>
+        <div style="background:#ffffff; border:1px solid #e2e1de; border-top:3px solid #a5a49f; border-radius:8px; padding:14px 16px;">
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6f6f6b;">Opted-Out Users</div>
+          <div style="font-size:34px; font-weight:600; letter-spacing:-0.03em; line-height:1.05; margin-top:4px; color:#6f6f6b;">{{ kOut }}</div>
+          <div style="font-size:11.5px; color:#8a8a86; margin-top:2px;">unavailable for queue</div>
+        </div>
+        <sc-if value="{{ showAlertCard }}" hint-placeholder-val="{{ true }}">
+          <div style="background:#fdf2f1; border:1px solid #e9bcb8; border-top:3px solid #c4342a; border-radius:8px; padding:14px 16px; animation:pulseRing 2.4s ease-out infinite;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <div style="font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#a52a21;">Abandoned Calls</div>
+            </div>
+            <div style="font-size:34px; font-weight:600; letter-spacing:-0.03em; line-height:1.05; margin-top:4px; color:#a52a21;">{{ kAlerts }}</div>
+            <div style="font-size:11.5px; color:#a52a21; margin-top:2px;">opted in but away</div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; align-items:baseline; gap:10px;">
+            <span style="font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#3d3d3a;">Opted In / Active</span>
+            <span style="font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:#8a8a86;">{{ kIn }} agents</span>
+            <div style="flex:1; height:1px; background:#dedcd8;"></div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(186px, 1fr)); gap:8px; align-content:start;">
+            <sc-for list="{{ optedIn }}" as="a" hint-placeholder-count="14">
+              <div style="{{ a.cardStyle }}">
+                <div style="display:flex; align-items:center; gap:7px;">
+                  <div style="{{ a.dotStyle }}"></div>
+                  <div style="min-width:0; flex:1;">
+                    <div style="font-size:12.5px; font-weight:600; letter-spacing:-0.005em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ a.name }}</div>
+                    <div style="font-size:10px; color:#7c7c78; margin-top:1px;">{{ a.ext }}</div>
+                  </div>
+                  <div style="{{ a.badgeStyle }}">{{ a.state }}</div>
+                </div>
+                <div style="margin-top:6px; display:flex; align-items:center; gap:10px;">
+                  <div style="display:flex; align-items:baseline; gap:5px;">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:11px; font-weight:600; color:#3d3d3a;">{{ a.taken }}</span>
+                    <span style="font-size:9px; letter-spacing:0.05em; text-transform:uppercase; color:#8a8a86;">attended</span>
+                  </div>
+                  <div style="width:1px; height:11px; background:#e2e1de;"></div>
+                  <div style="display:flex; align-items:baseline; gap:5px;">
+                    <span style="{{ a.missedStyle }}">{{ a.missed }}</span>
+                    <span style="font-size:9px; letter-spacing:0.05em; text-transform:uppercase; color:#8a8a86;">abandoned</span>
+                  </div>
+                </div>
+                <div style="margin-top:6px; padding-top:5px; border-top:1px solid #eeedea;">
+                  <div style="{{ a.outStyle }}">{{ a.outLabel }}</div>
+                  <div style="font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:#a3a29e; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ a.outQueues }}</div>
+                </div>
+                <sc-if value="{{ a.alert }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:6px; padding-top:5px; border-top:1px dashed #e6b6b1; display:flex; align-items:center; gap:6px;">
+                    <div style="width:13px; height:13px; border-radius:50%; background:#c4342a; color:#fff; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">!</div>
+                    <div style="font-size:9.5px; font-weight:600; color:#a52a21; letter-spacing:0.01em;">Abandoned · opted in but away</div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; align-items:baseline; gap:10px;">
+            <span style="font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#878681;">Opted Out</span>
+            <span style="font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:#a3a29e;">{{ kOut }} agents</span>
+            <div style="flex:1; height:1px; background:#dedcd8;"></div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(186px, 1fr)); gap:8px;">
+            <sc-for list="{{ optedOut }}" as="a" hint-placeholder-count="7">
+              <div style="{{ a.rowStyle }}">
+                <div style="{{ a.dotStyle }}"></div>
+                <div style="min-width:0; flex:1;">
+                  <div style="{{ a.nameStyle }}">{{ a.name }}</div>
+                  <div style="font-size:10px; color:#a3a29e; margin-top:1px;">{{ a.ext }}</div>
+                </div>
+                <div style="text-align:right; flex-shrink:0;">
+                  <div style="{{ a.stateStyle }}">{{ a.state }}</div>
+                  <div style="font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:#a3a29e; margin-top:2px; white-space:nowrap;">{{ a.taken }} att · {{ a.missed }} aband</div>
+                  <div style="font-size:9.5px; color:#8a8a86; margin-top:1px; white-space:nowrap;">{{ a.outCount }} queues out</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startSignedIn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Prototype&quot;},&quot;liveUpdates&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Prototype&quot;},&quot;showAlertKpi&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Dashboard&quot;}}">
+const AGENTS = [
+  { name: 'Priya Raghunathan', ext: 'Ext 2041', in: true, state: 'Available', taken: 24, missed: 0 },
+  { name: 'Daniel Okonkwo', ext: 'Ext 2042', in: true, state: 'On Call', dur: '4:12', taken: 19, missed: 1 },
+  { name: 'Marta Lindqvist', ext: 'Ext 2043', in: true, state: 'Abandoned', dur: '00:47', taken: 11, missed: 4 },
+  { name: 'Tom Bradbury', ext: 'Ext 2044', in: true, state: 'Available', taken: 16, missed: 1 },
+  { name: 'Aisha Karim', ext: 'Ext 2045', in: true, state: 'On Call', dur: '11:38', taken: 22, missed: 0 },
+  { name: 'Grzegorz Nowak', ext: 'Ext 2046', in: true, state: 'Waiting', taken: 13, missed: 2 },
+  { name: 'Chloe Fenwick', ext: 'Ext 2047', in: true, state: 'Available', taken: 27, missed: 1 },
+  { name: 'Samuel Adeyemi', ext: 'Ext 2048', in: true, state: 'On Call', dur: '2:05', taken: 18, missed: 0 },
+  { name: 'Niamh Doherty', ext: 'Ext 2049', in: true, state: 'Abandoned', dur: '01:22', taken: 9, missed: 5 },
+  { name: 'Victor Ramos', ext: 'Ext 2050', in: true, state: 'On Break', taken: 14, missed: 2 },
+  { name: 'Hannah Whitfield', ext: 'Ext 2051', in: true, state: 'Available', taken: 21, missed: 0 },
+  { name: 'Kenji Watanabe', ext: 'Ext 2052', in: true, state: 'On Call', dur: '7:54', taken: 17, missed: 1 },
+  { name: 'Leila Haddad', ext: 'Ext 2053', in: true, state: 'Available', taken: 25, missed: 1 },
+  { name: 'Ross McAllister', ext: 'Ext 2054', in: true, state: 'Waiting', taken: 12, missed: 3 },
+  { name: 'Ivy Chen', ext: 'Ext 2055', in: true, state: 'On Call', dur: '0:38', taken: 20, missed: 0 },
+  { name: 'Femi Balogun', ext: 'Ext 2056', in: true, state: 'Available', taken: 15, missed: 2 },
+  { name: 'Sofia Marchetti', ext: 'Ext 2057', in: true, state: 'On Break', taken: 10, missed: 1 },
+  { name: 'Callum Reeves', ext: 'Ext 2058', in: true, state: 'Available', taken: 23, missed: 0 },
+  { name: 'Anita Devlin', ext: 'Ext 2061', in: false, state: 'Off shift', taken: 8, missed: 1 },
+  { name: 'Jonah Pryce', ext: 'Ext 2062', in: false, state: 'Training', taken: 4, missed: 0 },
+  { name: 'Rosa Delgado', ext: 'Ext 2063', in: false, state: 'Off shift', taken: 12, missed: 2 },
+  { name: 'Ade Osei', ext: 'Ext 2064', in: false, state: 'Annual leave', taken: 0, missed: 0 },
+  { name: 'Bethan Lloyd', ext: 'Ext 2065', in: false, state: 'Admin work', taken: 6, missed: 1 },
+  { name: 'Marcus Vale', ext: 'Ext 2066', in: false, state: 'Off shift', taken: 9, missed: 0 },
+  { name: 'Yusuf Demir', ext: 'Ext 2067', in: false, state: 'Training', taken: 3, missed: 0 },
+  { name: 'Elena Popescu', ext: 'Ext 2068', in: false, state: 'Annual leave', taken: 0, missed: 0 }
+];
+
+const OUT_QUEUES = {
+  'Priya Raghunathan': ['Billing'],
+  'Daniel Okonkwo': [],
+  'Marta Lindqvist': ['Billing', 'Renewals', 'Overflow'],
+  'Tom Bradbury': ['Overflow'],
+  'Aisha Karim': [],
+  'Grzegorz Nowak': ['Renewals', 'Overflow'],
+  'Chloe Fenwick': ['Tech Support'],
+  'Samuel Adeyemi': [],
+  'Niamh Doherty': ['Sales', 'Billing', 'Overflow', 'Renewals'],
+  'Victor Ramos': ['Sales', 'Overflow'],
+  'Hannah Whitfield': [],
+  'Kenji Watanabe': ['Billing'],
+  'Leila Haddad': ['Overflow'],
+  'Ross McAllister': ['Tech Support', 'Renewals'],
+  'Ivy Chen': [],
+  'Femi Balogun': ['Sales'],
+  'Sofia Marchetti': ['Billing', 'Tech Support'],
+  'Callum Reeves': [],
+  'Anita Devlin': ['Sales', 'Billing', 'Tech Support', 'Renewals', 'Overflow'],
+  'Jonah Pryce': ['Sales', 'Billing', 'Tech Support', 'Renewals', 'Overflow'],
+  'Rosa Delgado': ['Sales', 'Billing', 'Tech Support', 'Renewals', 'Overflow'],
+  'Ade Osei': ['Sales', 'Billing', 'Tech Support', 'Renewals', 'Overflow'],
+  'Bethan Lloyd': ['Sales', 'Billing', 'Tech Support', 'Renewals', 'Overflow'],
+  'Marcus Vale': ['Sales', 'Billing', 'Tech Support', 'Renewals', 'Overflow'],
+  'Yusuf Demir': ['Sales', 'Billing', 'Tech Support', 'Renewals', 'Overflow'],
+  'Elena Popescu': ['Sales', 'Billing', 'Tech Support', 'Renewals', 'Overflow']
+};
+
+const TONE = {
+  'Available': { dot: '#2f8f5b', fg: '#256e47', bg: '#e8f3ec', bd: '#c6e0d1' },
+  'On Call': { dot: '#2f6fd0', fg: '#2358a8', bg: '#e9f0fb', bd: '#c8d9f2' },
+  'Waiting': { dot: '#c98a1e', fg: '#9c6a10', bg: '#fbf2e2', bd: '#eeddb9' },
+  'On Break': { dot: '#7a4fd0', fg: '#5b34a8', bg: '#f1ecfb', bd: '#ddd0f3' },
+  'Abandoned': { dot: '#c4342a', fg: '#a52a21', bg: '#fdf2f1', bd: '#e9bcb8' }
+};
+
+function seed(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+function hm(mins) { return Math.floor(mins / 60) + 'h ' + String(Math.round(mins % 60)).padStart(2, '0') + 'm'; }
+function clockAt(mins) { const h = Math.floor(mins / 60), m = Math.round(mins % 60); return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'); }
+
+const REASONS = ['Tea break', 'Lunch', 'Training', 'Meeting', 'Admin work', 'Shift over'];
+
+function byReason(sessions) {
+  const t = {};
+  REASONS.forEach(r => { t[r] = 0; });
+  sessions.forEach(s => { t[s.reason] = (t[s.reason] || 0) + s.dur; });
+  return t;
+}
+
+function daySessions(name, date) {
+  const r = seed(name + '|' + date);
+  const n = 1 + Math.floor(r() * 4);
+  const out = [];
+  let cursor = 8 * 60 + Math.floor(r() * 40);
+  for (let i = 0; i < n; i++) {
+    cursor += 25 + Math.floor(r() * 110);
+    const dur = 10 + Math.floor(r() * 85);
+    if (cursor + dur > 18 * 60) break;
+    out.push({ start: cursor, dur, reason: REASONS[Math.floor(r() * REASONS.length)], queues: 1 + Math.floor(r() * 5) });
+    cursor += dur;
+  }
+  return out;
+}
+
+class Component extends DCLogic {
+  state = {
+    authed: false, username: '', password: '',
+    clock: '', waiting: 6, agents: AGENTS,
+    view: 'live', date: '2026-09-09', pick: 'All agents'
+  };
+
+  componentDidMount() {
+    this.tick();
+    this.timer = setInterval(() => this.tick(), 1000);
+    if (this.props.liveUpdates !== false) {
+      this.sim = setInterval(() => this.shuffle(), 4200);
+    }
+  }
+  componentWillUnmount() { clearInterval(this.timer); clearInterval(this.sim); }
+
+  tick() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    this.setState({ clock: p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()) });
+  }
+
+  shuffle() {
+    const rotate = ['Available', 'On Call', 'Waiting', 'Available', 'On Call'];
+    this.setState(s => {
+      const agents = s.agents.map(a => {
+        if (!a.in || a.state === 'Abandoned' || a.state === 'On Break') return a;
+        return Math.random() < 0.18 ? { ...a, state: rotate[Math.floor(Math.random() * rotate.length)] } : a;
+      });
+      const waiting = Math.max(0, Math.min(14, s.waiting + (Math.floor(Math.random() * 3) - 1)));
+      return { agents, waiting };
+    });
+  }
+
+  decorate(a) {
+    const alert = a.state === 'Abandoned';
+    const t = TONE[a.state] || TONE['On Break'];
+    const q = OUT_QUEUES[a.name] || [];
+    return {
+      ...a,
+      alert,
+      outCount: q.length,
+      outLabel: q.length === 0 ? 'No queues opted out' : (q.length === 1 ? '1 queue opted out' : q.length + ' queues opted out'),
+      outQueues: q.length ? q.join(' · ') : '—',
+      outStyle: 'font-size:10px; letter-spacing:0.02em; color:' + (q.length >= 3 ? '#9c6a10' : '#8a8a86') + ';',
+      state: alert ? 'Away' : a.state,
+      cardStyle: alert
+        ? 'background:#fdf2f1; border:2px solid #c4342a; border-radius:7px; padding:8px 9px; box-shadow:0 2px 10px rgba(196,52,42,0.16);'
+        : (a.state === 'On Break'
+          ? 'background:#faf7ff; border:1px solid #ddd0f3; border-left:3px solid #7a4fd0; border-radius:7px; padding:9px 10px;'
+          : 'background:#ffffff; border:1px solid #e2e1de; border-radius:7px; padding:9px 10px;'),
+      dotStyle: 'width:8px; height:8px; border-radius:50%; flex-shrink:0; background:' + t.dot + ';',
+      missedStyle: 'font-family:\'IBM Plex Mono\', monospace; font-size:11px; font-weight:600; letter-spacing:0.02em; color:' + (a.missed >= 3 ? '#a52a21' : a.missed > 0 ? '#9c6a10' : '#7c7c78') + ';',
+      badgeStyle: 'flex-shrink:0; font-size:9.5px; font-weight:600; letter-spacing:0.03em; padding:2px 5px; border-radius:4px; white-space:nowrap; color:' + t.fg + '; background:' + t.bg + '; border:1px solid ' + t.bd + ';'
+    };
+  }
+
+  tabStyle(active) {
+    return 'height:28px; padding:0 13px; border-radius:6px; font-size:12px; font-family:\'IBM Plex Sans\', sans-serif; cursor:pointer; letter-spacing:0.01em; border:1px solid ' +
+      (active ? '#1b1b1a; background:#1b1b1a; color:#f4f4f3; font-weight:600;' : '#dcdbd8; background:#ffffff; color:#4a4a47; font-weight:500;');
+  }
+
+  reportVals() {
+    const date = this.state.date;
+    const rows = this.state.agents.map(a => {
+      const s = daySessions(a.name, date);
+      const total = s.reduce((t, x) => t + x.dur, 0);
+      const r = seed('shift|' + a.name + '|' + date);
+      const login = 8 * 60 + Math.floor(r() * 35);
+      const logout = 17 * 60 + Math.floor(r() * 55);
+      return { name: a.name, ext: a.ext, sessions: s, total, login, logout, loggedIn: logout - login };
+    }).sort((x, y) => y.total - x.total);
+    const max = Math.max(1, ...rows.map(r => r.total));
+    const pick = this.state.pick;
+    const single = rows.find(r => r.name === pick) || null;
+    const shiftTotal = rows.reduce((t, r) => t + r.total, 0);
+    const loginTotal = rows.reduce((t, r) => t + r.loggedIn, 0);
+
+    const exportCsv = () => {
+      const q = v => '"' + String(v).replace(/"/g, '""') + '"';
+      let lines;
+      if (single) {
+        lines = [['Crystal Group – Opt-in / Opt-out report'], ['Date', date], ['Agent', single.name], ['Extension', single.ext],
+          ['Logged in', clockAt(single.login) + ' – ' + clockAt(single.logout)],
+          ['Total login time', hm(single.loggedIn)],
+          ['Total opted in', hm(single.loggedIn - single.total)],
+          ['Total opted out', hm(single.total)], [],
+          ['Total hours by reason'], ['Reason', 'Total time', 'Periods']];
+        const t = byReason(single.sessions);
+        REASONS.forEach(r => lines.push([r, hm(t[r]), single.sessions.filter(s => s.reason === r).length]));
+        lines.push(['Total', hm(single.total), single.sessions.length], [], ['#', 'Start', 'End', 'Duration', 'Reason']);
+        single.sessions.forEach((s, i) => lines.push([i + 1, clockAt(s.start), clockAt(s.start + s.dur), hm(s.dur), s.reason]));
+      } else {
+        lines = [['Crystal Group – Opt-in / Opt-out report'], ['Date', date], ['Scope', 'All agents'],
+          ['Team login time', hm(loginTotal)],
+          ['Team opted out', hm(shiftTotal)], ['Average opted out per agent', hm(shiftTotal / rows.length)], [],
+          ['Rank', 'Agent', 'Extension', 'Login', 'Logout', 'Total login time', 'Total opted in', 'Total opted out', 'Opt-out periods'].concat(REASONS)];
+        rows.forEach((r, i) => {
+          const t = byReason(r.sessions);
+          lines.push([i + 1, r.name, r.ext, clockAt(r.login), clockAt(r.logout), hm(r.loggedIn),
+            hm(r.loggedIn - r.total), hm(r.total), r.sessions.length].concat(REASONS.map(x => hm(t[x]))));
+        });
+        const team = byReason(rows.reduce((all, r) => all.concat(r.sessions), []));
+        lines.push([], ['Team total hours by reason'], ['Reason', 'Total time']);
+        REASONS.forEach(r => lines.push([r, hm(team[r])]));
+        lines.push(['Total', hm(shiftTotal)]);
+      }
+      const csv = '\ufeff' + lines.map(r => r.map(q).join(',')).join('\r\n');
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'crystal-group-optout-' + date + (single ? '-' + single.name.toLowerCase().replace(/[^a-z]+/g, '-') : '-all-agents') + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    };
+
+    return {
+      exportCsv,
+      date,
+      onDate: e => this.setState({ date: e.target.value }),
+      pick,
+      onPick: e => this.setState({ pick: e.target.value }),
+      agentOptions: ['All agents'].concat(this.state.agents.map(a => a.name)),
+      isSingle: !!single,
+      isAll: !single,
+      headTotal: single ? hm(single.total) : hm(shiftTotal),
+      headLabel: single ? single.name : 'All agents',
+      headSub: single ? single.ext + ' · ' + single.sessions.length + ' opt-out periods' : rows.length + ' agents · team total',
+      avgLabel: hm(shiftTotal / rows.length),
+      longest: rows[0] ? rows[0].name + ' · ' + hm(rows[0].total) : '—',
+      loginTotal: single ? hm(single.loggedIn) : hm(loginTotal),
+      loginWindow: single ? clockAt(single.login) + ' – ' + clockAt(single.logout) : rows.length + ' sessions',
+      optedInTotal: single ? hm(single.loggedIn - single.total) : hm(loginTotal - shiftTotal),
+      sessions: single ? single.sessions.map((s, i) => ({
+        idx: String(i + 1).padStart(2, '0'),
+        range: clockAt(s.start) + ' – ' + clockAt(s.start + s.dur),
+        dur: hm(s.dur),
+        reason: s.reason,
+        queues: s.queues + ' queues',
+        barStyle: 'position:absolute; top:0; bottom:0; border-radius:3px; background:#c98a1e; left:' + (((s.start - 480) / 600) * 100).toFixed(2) + '%; width:' + Math.max(0.8, (s.dur / 600) * 100).toFixed(2) + '%;'
+      })) : [],
+      rows: rows.map((r, i) => ({
+        rank: String(i + 1).padStart(2, '0'),
+        name: r.name,
+        ext: r.ext,
+        total: hm(r.total),
+        login: hm(r.loggedIn),
+        reasons: Array.from(new Set(r.sessions.map(s => s.reason))).join(', ') || '—',
+        count: r.sessions.length + '×',
+        barStyle: 'height:7px; border-radius:4px; background:' + (r.total > 180 ? '#c4342a' : r.total > 100 ? '#c98a1e' : '#9ab8a7') + '; width:' + Math.max(2, (r.total / max) * 100).toFixed(1) + '%;'
+      }))
+    };
+  }
+
+  renderVals() {
+    const agents = this.state.agents;
+    const optedIn = agents.filter(a => a.in && a.state !== 'On Break').map(a => this.decorate(a));
+    const onBreak = agents.filter(a => a.in && a.state === 'On Break').map(a => ({
+      ...a, state: 'On break', outCount: 5, isBreak: true,
+      rowStyle: 'background:#faf7ff; border:1px solid #ddd0f3; border-left:3px solid #7a4fd0; border-radius:7px; padding:9px 10px; display:flex; align-items:center; gap:8px;',
+      dotStyle: 'width:8px; height:8px; border-radius:50%; background:#7a4fd0; flex-shrink:0;',
+      nameStyle: 'font-size:12.5px; font-weight:600; color:#4a3a63; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;',
+      stateStyle: 'font-size:10px; color:#5b34a8; font-weight:600; font-family:\'IBM Plex Mono\', monospace; letter-spacing:0.03em; white-space:nowrap;'
+    }));
+    const optedOut = onBreak.concat(agents.filter(a => !a.in).map(a => ({
+      ...a, outCount: (OUT_QUEUES[a.name] || []).length, isBreak: false,
+      rowStyle: 'background:#efeeec; border:1px solid #e0dfdb; border-radius:7px; padding:9px 10px; display:flex; align-items:center; gap:8px;',
+      dotStyle: 'width:8px; height:8px; border-radius:50%; background:#b6b5b0; flex-shrink:0;',
+      nameStyle: 'font-size:12.5px; font-weight:500; color:#6f6f6b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;',
+      stateStyle: 'font-size:10px; color:#8a8a86; font-family:\'IBM Plex Mono\', monospace; letter-spacing:0.03em; white-space:nowrap;'
+    })));
+    const alerts = optedIn.filter(a => a.alert).length;
+    const showAlertCard = (this.props.showAlertKpi ?? true) && alerts > 0;
+    return {
+      ...this.reportVals(),
+      showLogin: !this.state.authed && !(this.props.startSignedIn ?? false),
+      showDash: (this.state.authed || (this.props.startSignedIn ?? false)) && this.state.view === 'live',
+      showReport: (this.state.authed || (this.props.startSignedIn ?? false)) && this.state.view === 'report',
+      tabLiveStyle: this.tabStyle(this.state.view === 'live'),
+      tabReportStyle: this.tabStyle(this.state.view === 'report'),
+      goLive: () => this.setState({ view: 'live' }),
+      goReport: () => this.setState({ view: 'report' }),
+      username: this.state.username,
+      password: this.state.password,
+      onUser: e => this.setState({ username: e.target.value }),
+      onPass: e => this.setState({ password: e.target.value }),
+      signIn: () => this.setState({ authed: true }),
+      signOut: () => this.setState({ authed: false, username: '', password: '' }),
+      clock: this.state.clock,
+      optedIn, optedOut, showAlertCard,
+      kAvailable: optedIn.filter(a => a.state === 'Available').length,
+      kWaiting: this.state.waiting,
+      kIn: optedIn.length,
+      kOut: optedOut.length,
+      kTotal: agents.length,
+      kAlerts: alerts,
+      longestWait: this.state.waiting > 0 ? '2m 14s' : '—'
+    };
+  }
+}
+</script>
+</body>
+</html>
