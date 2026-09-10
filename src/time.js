@@ -28,7 +28,6 @@ function partsOf(fmt, d) {
   for (const p of fmt.formatToParts(d)) out[p.type] = p.value;
   return out;
 }
-
 /** Today's date in UK time as YYYY-MM-DD. */
 function todayISO(d = new Date()) {
   const p = partsOf(dateFmt, d);
