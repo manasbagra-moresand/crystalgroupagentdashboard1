@@ -1,0 +1,44 @@
+# Run the dashboard with:  docker compose up -d
+# Needs a .env file alongside this one — copy .env.example and fill in the Zoom values.
+
+services:
+  dashboard:
+    build: .
+    image: crystal-group-agent-dashboard
+    container_name: crystal-dashboard
+
+    # Secrets and tuning come from .env at RUNTIME, never from the image. Everything the app
+    # reads is listed in .env.example; only the three ZOOM_* values are strictly required.
+    env_file:
+      - .env
+
+    environment:
+      # The app binds whatever PORT says; the mapping below assumes 3000. Set here rather
+      # than in .env so a stray local PORT can't desync it from the port mapping.
+      PORT: 3000
+
+    ports:
+      - "3000:3000"
+
+    # Named volume for the opt-out history. Without this, every `docker compose up` starts
+    # the day's history from scratch — the README explains that it is never backfilled from
+    # Zoom, so what is lost here cannot be recovered.
+    volumes:
+      - dashboard-data:/app/data
+
+    # A real init as PID 1, so SIGTERM reaches Node and zombies get reaped.
+    init: true
+
+    # Measured steady state is ~103 MB RSS on a 59-agent account. 512 MB is the recommended
+    # minimum and matches the NODE_OPTIONS heap cap set in the Dockerfile. Raise both
+    # together if you widen DEPARTMENTS to cover a much larger roster.
+    mem_limit: 512m
+
+    # Give the graceful shutdown in src/index.js time to flush the event store before the
+    # runtime escalates to SIGKILL. Its own safety timeout is 8s, so 15s is comfortable.
+    stop_grace_period: 15s
+
+    restart: unless-stopped
+
+volumes:
+  dashboard-data:

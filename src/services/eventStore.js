@@ -60,4 +60,27 @@ function persist() {
   scheduleSave();
 }
 
-module.exports = { agentFor, getDay, persist };
+/**
+ * Writes any pending change to disk immediately, synchronously.
+ *
+ * Saves are debounced by a second so that a 5s poll touching 60 agents doesn't rewrite the
+ * file 60 times. That debounce is harmless until the process is asked to stop: a container
+ * runtime sends SIGTERM and SIGKILLs a few seconds later, so without this the last second
+ * of opt-out transitions — including the start of a break someone is still on — is lost.
+ * Synchronous on purpose; an async write isn't guaranteed to finish during shutdown.
+ */
+function flush() {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  try {
+    fs.writeFileSync(FILE, JSON.stringify(store, null, 2));
+    return true;
+  } catch (err) {
+    console.error('Could not flush the event store to disk:', err.message);
+    return false;
+  }
+}
+
+module.exports = { agentFor, getDay, persist, flush };

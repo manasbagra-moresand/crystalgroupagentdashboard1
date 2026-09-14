@@ -1,0 +1,26 @@
+# Rebuilt inside the image by `npm ci` — copying the host's tree would be slow and, on a
+# Windows host, would bake in binaries built for the wrong platform.
+node_modules/
+
+# Secrets. The image must never contain the Zoom client secret or the session secret:
+# anyone who can pull the image can read them. Pass them in at runtime instead
+# (docker run --env-file .env, or the `env_file` in docker-compose.yml).
+.env
+.env.*
+!.env.example
+
+# Runtime state. Lives in the mounted volume, not in the image — baking a stale
+# events.json in would resurrect old opt-out history on every deploy.
+data/*.json
+
+# Not needed to run the app.
+.git/
+.gitignore
+chats/
+project/
+*.log
+*.md
+!README.md
+Dockerfile
+.dockerignore
+docker-compose.yml

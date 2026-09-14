@@ -277,6 +277,15 @@ button { cursor: pointer; font-family: inherit; }
    line at 212px. */
 .optout-row .agent-calls { font-size: 10.5px; margin-top: 2px; }
 
+/* Opted out of every queue, but on a call — an outbound or direct one. Blue, matching the
+   On Call state everywhere else in the app, and listed above the merely-idle rows: this
+   agent is working, just not reachable through a queue. */
+.optout-row--oncall {
+  background: var(--oncall-bg); border: 1px solid var(--oncall-bd); border-left: 3px solid var(--oncall-dot);
+}
+.optout-row--oncall .optout-name { font-weight: 600; color: var(--oncall-fg); }
+.optout-row--oncall .optout-reason { color: var(--oncall-fg); font-weight: 600; }
+
 /* Online but reachable on no queue. Same left-bar language as the break rows so the
    section still scans as one list, in the warmer "look at this" tone. */
 .optout-row--idle {

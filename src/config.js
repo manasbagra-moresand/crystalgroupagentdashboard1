@@ -35,6 +35,25 @@ function parseAllowances(spec) {
 
 module.exports = {
   port: Number(process.env.PORT) || 3000,
+
+  // Sub-path this app is mounted at, when it isn't served from the root of a domain.
+  //
+  // In production it sits behind a reverse proxy at /agent-availability, and that proxy
+  // forwards the prefix rather than stripping it — the app receives the full
+  // "/agent-availability/api/..." path. Mounting everything under this value is what makes
+  // both layouts work from one build. Empty (the default) means the root, as when running
+  // locally or in Docker with no proxy in front.
+  //
+  // Normalised to a leading slash and no trailing slash, so "agent-availability/",
+  // "/agent-availability" and "agent-availability" all behave the same.
+  basePath: (() => {
+    const raw = String(process.env.BASE_PATH || '').trim();
+    // Split on "/" and drop empties: normalises leading, trailing and doubled slashes in
+    // one step, so "agent-availability", "/agent-availability/" and "//agent-availability//"
+    // all resolve to the same "/agent-availability".
+    const segments = raw.split('/').filter(Boolean);
+    return segments.length ? '/' + segments.join('/') : '';
+  })(),
   sessionSecret: process.env.SESSION_SECRET || 'change-me-to-a-long-random-string',
 
   adminUsername: ADMIN_USERNAME,

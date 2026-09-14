@@ -129,6 +129,61 @@ silently go an hour wrong every winter. If you change it, note that `data/events
 bare `HH:MM` strings keyed by date, so history written under the old zone won't match what's
 written after the change.
 
+## Running in Docker
+
+```bash
+cp .env.example .env      # then fill in the Zoom values
+docker compose up -d      # http://localhost:3000
+docker compose logs -f    # follow the poll loop
+docker compose down       # stops; the opt-out history survives in the volume
+```
+
+Or without compose:
+
+```bash
+docker build -t crystal-dashboard .
+docker run -d --name crystal-dashboard --init \
+  -p 3000:3000 --env-file .env -e PORT=3000 \
+  -v crystal-data:/app/data --memory 512m \
+  crystal-dashboard
+```
+
+### Things that matter here, and why
+
+- **It is not a static site.** The container holds the one poll loop that talks to Zoom and
+  caches the snapshot every request reads. It has to stay up between requests — which is why
+  this runs on a container host and not on a serverless platform.
+- **`/app/data` must be a volume.** The opt-out history and the break countdowns are built
+  from `data/events.json`, and the README's data-model note explains it is never backfilled
+  from Zoom. Without the volume, every restart loses the day's history for good.
+- **Secrets are passed at runtime, never baked in.** `.dockerignore` excludes `.env`, so the
+  Zoom client secret is not in the image; anyone who can pull an image can read its layers.
+- **The heap is capped deliberately.** `NODE_OPTIONS=--max-old-space-size=192` is set in the
+  Dockerfile because V8 sizes its heap from the *host's* memory, not the container limit —
+  uncapped, Node will grow past a small container's cgroup limit and be OOM-killed.
+- **Stop signals are handled.** `src/index.js` traps SIGTERM, stops the poller and flushes
+  the event store synchronously before exiting, because saves are debounced by a second
+  (`services/eventStore.js`). `stop_grace_period: 15s` gives that time to finish. Run with
+  `--init` so SIGTERM actually reaches Node as PID 1.
+- **The healthcheck hits a real route** (`/api/auth/me`), not a static file, so it fails if
+  the process is serving assets but the app itself is wedged. It shells out to `node`
+  because the Alpine base image has neither `curl` nor `wget`.
+
+### Resources
+
+Measured against the live account (59 agents in scope, 477 phone users, 188 queues):
+
+| | Measured | Provision |
+|---|---|---|
+| CPU | 4.1% of one core, sustained | 1 shared/burstable vCPU |
+| Memory | ~103 MB RSS steady state | **512 MB** |
+| Disk | 5 MB image payload + ~30 KB/day of history | 1 GB |
+
+It is I/O-bound, waiting on Zoom rather than computing, so CPU is not the constraint. Both
+memory numbers scale with roster size — widen `DEPARTMENTS` and raise `mem_limit` and the
+`--max-old-space-size` cap together. `data/events.json` is never pruned (~11 MB/year).
+
+
 ## Security note — the dashboard login
 
 Per explicit instruction, the dashboard's own admin login is a single hardcoded

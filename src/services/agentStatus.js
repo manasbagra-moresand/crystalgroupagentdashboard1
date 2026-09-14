@@ -371,6 +371,12 @@ function decorateAgent(a) {
   // as capacity to look at rather than as an error.
   const idle = !a.in && AT_DESK_STATES.has(a.state);
 
+  // Opted out of every queue but demonstrably on a call — an outbound dial, or a direct
+  // inbound one that bypassed the queues. Worth separating from the plain idle case: this
+  // agent is visibly working, they just can't be reached through a queue, whereas a plain
+  // idle agent is sitting available and taking nothing. Surfaced above the idle rows.
+  const onCallOut = idle && a.state === 'On Call';
+
   const t = TONE[a.state] || TONE['On Break'];
   const q = a.outQueueNames || [];
   return {
@@ -381,6 +387,7 @@ function decorateAgent(a) {
     skipped: a.skipped,
     alert,
     idle,
+    onCallOut,
     state: alert ? 'Away' : a.state,
     outCount: q.length,
     outLabel: q.length === 0 ? 'No queues opted out' : (q.length === 1 ? '1 queue opted out' : `${q.length} queues opted out`),

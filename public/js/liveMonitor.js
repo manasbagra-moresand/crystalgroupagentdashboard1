@@ -113,12 +113,16 @@ const LiveMonitor = (() => {
     const overBreak = !!(a.breakTimer && a.breakTimer.endsAt < Date.now());
     const rowClass = overBreak
       ? 'optout-row optout-row--break optout-row--over'
+      : (a.onCallOut
+        ? 'optout-row optout-row--oncall'
+        : (a.idle
+          ? 'optout-row optout-row--idle'
+          : (a.isBreak ? 'optout-row optout-row--break' : 'optout-row')));
+    const dotColor = a.onCallOut
+      ? 'var(--oncall-dot)'
       : (a.idle
-        ? 'optout-row optout-row--idle'
-        : (a.isBreak ? 'optout-row optout-row--break' : 'optout-row'));
-    const dotColor = a.idle
-      ? 'var(--idle-dot)'
-      : (a.isBreak ? 'var(--break-dot)' : 'var(--optout-dot)');
+        ? 'var(--idle-dot)'
+        : (a.isBreak ? 'var(--break-dot)' : 'var(--optout-dot)'));
     const state = a.isBreak ? 'On break' : a.state;
 
     // The design's second line is a single sentence ("All queues · on break") rather than
@@ -127,7 +131,13 @@ const LiveMonitor = (() => {
     // a bare mono triple on the right because they're information the design's mock data
     // never had to show.
     const scope = a.outCount === 0 ? 'No queues' : (a.outCount === 1 ? '1 queue' : `${a.outCount} queues`);
-    const reason = a.idle ? `${scope} · online, in none` : `${scope} · ${state.toLowerCase()}`;
+    // An agent on a call says so, even while opted out of everything — they're on an
+    // outbound or direct call. This line used to read "online, in none" for every idle
+    // agent, which hid the difference between someone working a call and someone sitting
+    // available and taking nothing.
+    const reason = a.onCallOut
+      ? `${scope} · on call`
+      : (a.idle ? `${scope} · online, in none` : `${scope} · ${state.toLowerCase()}`);
 
     // Same wording and mono styling as the opted-in cards. These used to be a bare
     // "0 · 0 · 0" squeezed into a right-hand column, because the row also carried an ext
@@ -203,7 +213,11 @@ const LiveMonitor = (() => {
     // to ~50 rows — the ones that matter would sit below the fold. Order is otherwise
     // left exactly as the backend sent it.
     const now = Date.now();
-    const rank = a => (a.breakTimer && a.breakTimer.endsAt < now ? 2 : (a.idle ? 1 : 0));
+    // 3 over break, 2 on a call while opted out, 1 online but on no queue, 0 the rest.
+    // Over-break stays top because it's a genuine alert; being on a call is information,
+    // not a problem — but it belongs above the agents who are merely idle.
+    const rank = a => (a.breakTimer && a.breakTimer.endsAt < now ? 3
+      : (a.onCallOut ? 2 : (a.idle ? 1 : 0)));
     const outRows = agents.optedOut.slice().sort((x, y) => rank(y) - rank(x));
 
     document.getElementById('optedOutGrid').innerHTML = outRows.length
